@@ -1,0 +1,156 @@
+进度条： http://www.theiling.de/projects/bar.html
+bar -n xxx.tar.gz | tar xzpf - -C $path
+
+读取配置文件
+properties：
+	a=b
+xxx.sh:
+	Source properties
+	$a
+
+for循环变量值递增：
+	for((i=0;i<3;i++))
+	do
+	  index=$(($i+1))
+	done
+
+字符串拼接：
+	node=“node”$index
+
+将变量值转换为变量名：
+	eval echo ‘$’”$node”
+
+在匹配行下插入一行：
+	sed “/^EOF.*$/i $addr” -i ./ca/ca.sh
+
+删除匹配行(IP.0)：
+	sed -i ‘/^IP\..*$/d’ ./ca/ca.sh
+
+判断变量字符串长度为0（非零为n）：
+	if [ -z $cas_server_ip]; then
+	fi
+
+替换匹配行内容：
+	sed -i “s/^auth:.*$/#auth:/g” config.yaml
+
+正则匹配判断（字母数字下划线短横线长度）：
+	While [[ ! $namespace =~ ^[0-9a-zA-Z_-]{1,19}$ ]];
+	do
+	done
+
+读取输入值并输出提示：
+	read -p “xxxxxx: ” namespace
+
+判断输入yes是否匹配：
+	echo -n “是否开启单点登录sso？ [yes|no]
+	>>>”
+ 	Read ans
+	While [[ ($ans != “yes”) && ($ans != “Yes”) && ($ans != “YES”) 
+&& ($ans != “no”) && ($ans != “No”) && ($ans != “NO”)  ]]
+	do
+	  echo -n “请输入‘yes'或‘no’:’
+>>> ”
+done
+
+去掉列名：(head,tail 正数行号对应行，负数行号对应行上方)
+	tail -n +2
+
+截取空格划分字符：
+	cut -d ‘ ‘ -f 1
+	awk ‘{print $1}’ 
+
+判断时变量有可能为空：
+	if [[ $tiller_pod_status = “Running” ]]; then
+	Fi
+
+判断文件是否存在且为目录（文件为-a）：
+	if [ ! -d “${chart_repo}” ]; then
+	  mkdir -p ${chart_repo}
+	fi
+
+判断端口占用：
+	Function port_check() {
+	  port_status=`ss -lnp | awk ‘{print $5}’ | grep “:$1$”`
+
+	  if [ -n “$port_status” ] && [ ! -z $chart_port ]; then
+	    echo “$chart_port端口已经被占用，请更改本地Chart端口！”
+	    read -r -p “请输入端口号：” chart_port
+	    If [ “exit” == $chart_port ]; then
+	      exit 0
+	    fi
+	  port_status=””
+
+转义变量中的正斜线：
+	${nfs_path//\//\\/}
+
+截取变量中的值（IP前三段）：
+	${node%.*}
+
+截取除最后一个/的路径：
+	${chart_repo%*/}
+
+重定向日志：
+	xxx > /dev/null 2>&1 &
+
+获取当前工作目录：
+	workdir=`echo ${0%/*}/`
+
+免密登录：
+function install_sotf() {
+  rpm -ivh ./utils/tcl-8.5.13-8.el7.x86_64.rpm > /dev/null 2>&1 &
+  rpm -ivh ./utils/expect-5.45-14.el7_1.x86_64.rpm > /dev/null 2>&1 &
+}
+
+生成ssh证书：
+function generate_ssh() {
+/usr/bin/expect <<-EOF
+    set timeout 20
+    spawn ssh-keygen -t rsa
+    expect {
+        “(/root/.ssh/id_rsa):” { send “\r”; exp_continue }
+        “(y/n)?” { send “y\r”; exp_continue }
+        “(empty for no passphrase):” {send “\r”; exp_continue }
+        “Enter same passphrase again:” { send “\r”; exp_continue }
+    }
+    expect eof
+EOF
+}
+
+单节点免密登录：
+Function sage_one_ssh() {
+/usr/bin/expect <<-EOF
+    set timeout 20
+    spawn ssh-copy-id -oStrictHostKeyChecking=no -i /root/.ssh/id_rsa.pub root@$1
+    expect {
+        “*password:” { send “$password\r” }
+    }
+    expect eof
+EOF
+}
+
+配置所有节点免密登录：
+function safe_all_ssh() {
+    echo “集群节点数量： ${node_num}”
+    for((i=1;i<=${node_num};i++));
+    do
+      echo “node${i}”
+      node_ip=`eval echo ‘$’node${i}`
+      safe_one_ssh $node_ip
+    done
+}
+
+免密登录执行操作：
+	ssh root@$node_ip “cd /opt; chmod +x *.sh; ./nfs-node.sh”
+
+复制一个文件到多个目录：
+echo xx1 xx2 xx3 … | xargs -n 1 cp -v -r /home/admin/H3C_Demo
+
+For循环：
+images=(xx1 xx2 xx3 ...)
+for image in ${images[@]}; do
+  docker load -i $image
+done
+
+
+生成序列号：
+$(seq 1 10)
